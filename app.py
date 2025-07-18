@@ -151,7 +151,12 @@ def chart(type, asset):
     labels = df["timestamp"].dt.strftime("%m-%d %H:%M").tolist()
     values = df[column].tolist()
     return render_template("chart.html", asset=asset, labels=labels, values=values)
-
+    
+@app.route("/force_log")
+def force_log():
+    log_data()
+    return "Logged!"
+    
 # == Run app ==
 if __name__ == "__main__":
     Thread(target=run_scheduler, daemon=True).start()
