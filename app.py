@@ -6,7 +6,7 @@ from datetime import datetime
 from threading import Thread
 
 app = Flask(__name__)
-TRACKED_ASSETS = ["BTC", "ETH", "SUI", "SOL", "LINK", "USDT", "USDC"]
+TRACKED_ASSETS = ["BTC", "ETH", "SUI", "SOL", "LINK", "USDC"]
 
 # == API Functions ==
 def get_long_short_data(asset):
@@ -40,9 +40,11 @@ def get_volume_price(asset):
     try:
         price = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={asset}USDT").json()
         p = float(price["price"])
-        vol_long = oi_usd * 0.6
-        vol_short = oi_usd * 0.4
-        return vol_long, vol_short, p * 1.01, p * 0.99
+        vol_long = round(float(oi_usd) * 0.6, 6)
+        vol_short = round(float(oi_usd) * 0.4, 6)
+        avg_long = round(p * 1.01, 6)
+        avg_short = round(p * 0.99, 6)
+        return vol_long, vol_short, avg_long, avg_short
     except:
         return None, None, None, None
 
@@ -151,13 +153,12 @@ def chart(type, asset):
     labels = df["timestamp"].dt.strftime("%m-%d %H:%M").tolist()
     values = df[column].tolist()
     return render_template("chart.html", asset=asset, labels=labels, values=values)
-    
+
 @app.route("/force_log")
 def force_log():
     log_data()
     return "Logged!"
-    
-# == Run app ==
+
 if __name__ == "__main__":
     Thread(target=run_scheduler, daemon=True).start()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
