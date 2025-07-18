@@ -15,7 +15,7 @@ TRACKED_ASSETS = ["USDT", "USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOG
 def get_long_account_data(asset):
     symbol = asset + "USDT"
     try:
-        res = requests.get(f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=2").json()
+        res = requests.get(f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=1").json()
         if not res or not isinstance(res, list):
             return None
         long_acc = float(res[0].get("longAccount", 0))
@@ -27,7 +27,7 @@ def get_long_account_data(asset):
 def get_long_short_ratio_data(asset):
     symbol = asset + "USDT"
     try:
-        res = requests.get(f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=2").json()
+        res = requests.get(f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=1").json()
         if not res or not isinstance(res, list):
             return None
         ratio = float(res[0].get("longShortRatio", 0))
