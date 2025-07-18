@@ -1,38 +1,59 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ title }}</title>
+    <meta charset="UTF-8">
+    <title>{{ asset }} - Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: Arial; padding: 30px; }
-    </style>
 </head>
 <body>
-    <h2>{{ title }}</h2>
-    <canvas id="rateChart" width="800" height="400"></canvas>
+    <h2>📈 Chart for {{ asset }}</h2>
+    <canvas id="myChart" width="900" height="400"></canvas>
+
     <script>
-        const labels = {{ times | tojson }};
-        const data = {
-            labels: labels,
-            datasets: [
-                {
-                    label: '{{ title }}',
-                    data: {{ rates | tojson }},
-                    fill: false,
-                    borderColor: 'goldenrod',
-                    tension: 0.3,
-                    pointRadius: 3,
-                }
-            ]
-        };
-        const config = {
+        const labels = {{ labels|safe }};
+        const values = {{ values|safe }};
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const chart = new Chart(ctx, {
             type: 'line',
-            data: data,
-        };
-        new Chart(
-            document.getElementById('rateChart'),
-            config
-        );
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '{{ asset }}',
+                    data: values,
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        },
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
