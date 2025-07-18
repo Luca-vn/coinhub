@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📉 Lucabrasi Open Interest Dashboard</title>
+    <style>
+        body { font-family: Arial; font-size: 15px; padding: 20px; background: #f4f4f4; }
+        table { border-collapse: collapse; width: 100%; background: white; }
+        th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: center; }
+        th { background-color: #000; color: #fff; }
+        tr:hover { background-color: #f2f2f2; }
+        .header { font-size: 20px; margin-bottom: 10px; font-weight: bold; color: #8B0000; }
+    </style>
+</head>
+<body>
+    <div class="header">💗 Lucabrasi Open Interest Dashboard</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Asset</th>
+                <th>Long Account %</th>
+                <th>Short Account %</th>
+                <th>Long/Short Ratio</th>
+                <th>OI USD</th>
+                <th>OI BTC</th>
+                <th>Volume Long</th>
+                <th>Volume Short</th>
+                <th>Avg Price Long</th>
+                <th>Avg Price Short</th>
+                <th>Chart</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                <td>{{ row.asset }}</td>
+                <td>{{ row.long_account }}</td>
+                <td>{{ row.short_account }}</td>
+                <td>{{ row.long_short_ratio }}</td>
+                <td>{{ row.oi_usd }}</td>
+                <td>{{ row.oi_btc }}</td>
+                <td>{{ row.volume_long }}</td>
+                <td>{{ row.volume_short }}</td>
+                <td>{{ row.avg_price_long }}</td>
+                <td>{{ row.avg_price_short }}</td>
+                <td>
+                    <a href="/chart/longshort/{{ row.asset }}">Long%</a> |
+                    <a href="/chart/ratio/{{ row.asset }}">L/S</a> |
+                    <a href="/chart/oi/{{ row.asset }}">OI$</a> |
+                    <a href="/chart/oibtc/{{ row.asset }}">OI฿</a> |
+                    <a href="/chart/volume/{{ row.asset }}">Vol</a> |
+                    <a href="/chart/price/{{ row.asset }}">P↑</a> |
+                    <a href="/chart/price/{{ row.asset }}">P↓</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; padding: 30px; }
+    </style>
+</head>
+<body>
+    <h2>{{ title }}</h2>
+    <canvas id="rateChart" width="800" height="400"></canvas>
+    <script>
+        const labels = {{ times | tojson }};
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: '{{ title }}',
+                    data: {{ rates | tojson }},
+                    fill: false,
+                    borderColor: 'goldenrod',
+                    tension: 0.3,
+                    pointRadius: 3,
+                }
+            ]
+        };
+        const config = {
+            type: 'line',
+            data: data,
+        };
+        new Chart(
+            document.getElementById('rateChart'),
+            config
+        );
+    </script>
+</body>
+</html>
