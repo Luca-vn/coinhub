@@ -6,23 +6,34 @@ from datetime import datetime
 from threading import Thread
 
 app = Flask(__name__)
-TRACKED_ASSETS = ["BTC", "ETH", "SUI", "SOL", "LINK", "USDC"]
+TRACKED_ASSETS = ["USDT", "USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOGE", "PEPE", "LTC", "ADA", "AVAX",
+    "TRUMP", "LINK", "WLD", "OP", "ARB", "TON", "BLUR", "MAGIC", "MATIC", "PYTH", "INJ", "TIA",
+    "ZRO", "ZETA", "DYM", "JUP", "MANTA", "ONDO", "LISTA", "ENA", "ZK", "XLM", "BONK", "WBTC",
+    "TRX", "FIL", "GMX", "TAO", "EDU"]
 
 # == API Functions ==
 def get_long_short_data(asset):
     symbol = asset + "USDT"
     try:
-        acc = requests.get(
+        acc_res = requests.get(
             f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=1"
         ).json()
-        ratio = requests.get(
+
+        ratio_res = requests.get(
             f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=1"
         ).json()
-        long_acc = float(acc[0]["longAccount"])
+
+        if not acc_res or not ratio_res:
+            return None, None, None
+
+        long_acc = float(acc_res[0].get("longAccount", 0))
         short_acc = 100.0 - long_acc
-        long_short_ratio = float(ratio[0]["longShortRatio"])
+        long_short_ratio = float(ratio_res[0].get("longShortRatio", 0))
+
         return long_acc, short_acc, long_short_ratio
-    except:
+
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch long/short data for {asset}: {e}")
         return None, None, None
 
 def get_open_interest(asset):
