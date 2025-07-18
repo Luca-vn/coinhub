@@ -6,6 +6,7 @@ from datetime import datetime
 from threading import Thread
 
 app = Flask(__name__)
+
 TRACKED_ASSETS = ["USDT", "USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOGE", "PEPE", "LTC", "ADA", "AVAX",
     "TRUMP", "LINK", "WLD", "OP", "ARB", "TON", "BLUR", "MAGIC", "MATIC", "PYTH", "INJ", "TIA",
     "ZRO", "ZETA", "DYM", "JUP", "MANTA", "ONDO", "LISTA", "ENA", "ZK", "XLM", "BONK", "WBTC",
@@ -46,19 +47,25 @@ def get_open_interest(asset):
     try:
         oi = requests.get(f"https://fapi.binance.com/fapi/v1/openInterest?symbol={asset}USDT").json()
         price = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={asset}USDT").json()
-        oi_usd = float(oi["openInterest"])
+        oi_contracts = float(oi["openInterest"])
         price_usdt = float(price["price"])
-        return oi_usd, oi_usd / price_usdt
+        oi_usd = oi_contracts * price_usdt
+        return oi_usd, oi_contracts
     except:
         return None, None
 
 def get_volume_price(asset):
     oi_usd, _ = get_open_interest(asset)
     try:
+        ratio = get_long_short_ratio_data(asset)
+        if ratio is None or oi_usd is None:
+            return None, None, None, None
+        long_ratio = ratio / (1 + ratio)
+        short_ratio = 1 - long_ratio
         price = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={asset}USDT").json()
         p = float(price["price"])
-        vol_long = round(float(oi_usd) * 0.6, 6)
-        vol_short = round(float(oi_usd) * 0.4, 6)
+        vol_long = round(float(oi_usd) * long_ratio, 6)
+        vol_short = round(float(oi_usd) * short_ratio, 6)
         avg_long = round(p * 1.01, 6)
         avg_short = round(p * 0.99, 6)
         return vol_long, vol_short, avg_long, avg_short
@@ -83,13 +90,13 @@ def log_data():
             with open(file, "a") as f:
                 f.write(f"{now},{asset}," + ",".join(map(str, fields)) + "\n")
 
-        if long_acc is not None:
+        if long_acc is not None and short_acc is not None and longshort is not None:
             append("longshort_history.csv", [long_acc, short_acc, longshort], ["long_account", "short_account", "long_short_ratio"])
-        if oi_usd is not None:
+        if oi_usd is not None and oi_btc is not None:
             append("oi_history.csv", [oi_usd, oi_btc], ["oi_usd", "oi_btc"])
-        if vol_long is not None:
+        if vol_long is not None and vol_short is not None:
             append("volume_history.csv", [vol_long, vol_short], ["volume_long", "volume_short"])
-        if avg_long is not None:
+        if avg_long is not None and avg_short is not None:
             append("avgprice_history.csv", [avg_long, avg_short], ["avg_price_long", "avg_price_short"])
 
 def run_scheduler():
@@ -99,7 +106,7 @@ def run_scheduler():
             log_data()
         except Exception as e:
             print("Logging error:", e)
-        time.sleep(3600)
+        time.sleep(1800)
 
 # == Dashboard ==
 def read_last_row(csv_file, cols):
@@ -175,7 +182,7 @@ def chart(type, asset):
 def force_log():
     log_data()
     return "Logged!"
-    
+
 @app.route("/test_lsr/<asset>")
 def test_lsr(asset):
     long_acc = get_long_account_data(asset)
