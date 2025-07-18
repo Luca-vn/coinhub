@@ -12,24 +12,35 @@ TRACKED_ASSETS = ["USDT", "USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOG
     "TRX", "FIL", "GMX", "TAO", "EDU"]
 
 # == API Functions ==
-def get_long_short_data(asset):
+def get_long_account_data(asset):
     symbol = asset + "USDT"
     try:
-        acc_res = requests.get(f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=2").json()
-        ratio_res = requests.get(f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=2").json()
-
-        if not acc_res or not ratio_res:
-            return None, None, None
-
-        long_acc = float(acc_res[0].get("longAccount", 0))
-        short_acc = 100.0 - long_acc
-        long_short_ratio = float(ratio_res[0].get("longShortRatio", 0))
-
-        return long_acc, short_acc, long_short_ratio
-
+        res = requests.get(f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=2").json()
+        if not res or not isinstance(res, list):
+            return None
+        long_acc = float(res[0].get("longAccount", 0))
+        return long_acc
     except Exception as e:
-        print(f"[ERROR] Failed to fetch long/short data for {asset}: {e}")
-        return None, None, None
+        print(f"[ERROR] get_long_account_data({asset}): {e}")
+        return None
+
+def get_long_short_ratio_data(asset):
+    symbol = asset + "USDT"
+    try:
+        res = requests.get(f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=2").json()
+        if not res or not isinstance(res, list):
+            return None
+        ratio = float(res[0].get("longShortRatio", 0))
+        return ratio
+    except Exception as e:
+        print(f"[ERROR] get_long_short_ratio_data({asset}): {e}")
+        return None
+
+def get_long_short_data(asset):
+    long_acc = get_long_account_data(asset)
+    long_short_ratio = get_long_short_ratio_data(asset)
+    short_acc = 100.0 - long_acc if long_acc is not None else None
+    return long_acc, short_acc, long_short_ratio
 
 def get_open_interest(asset):
     try:
@@ -164,6 +175,12 @@ def chart(type, asset):
 def force_log():
     log_data()
     return "Logged!"
+    
+@app.route("/test_lsr/<asset>")
+def test_lsr(asset):
+    long_acc = get_long_account_data(asset)
+    ratio = get_long_short_ratio_data(asset)
+    return f"{asset} → Long%: {long_acc}, Ratio: {ratio}"
 
 if __name__ == "__main__":
     Thread(target=run_scheduler, daemon=True).start()
