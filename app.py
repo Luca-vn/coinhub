@@ -7,10 +7,12 @@ from threading import Thread
 
 app = Flask(__name__)
 
-TRACKED_ASSETS = ["USDT", "USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOGE", "PEPE", "LTC", "ADA", "AVAX",
+TRACKED_ASSETS = [
+    "USDT", "USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOGE", "PEPE", "LTC", "ADA", "AVAX",
     "TRUMP", "LINK", "WLD", "OP", "ARB", "TON", "BLUR", "MAGIC", "MATIC", "PYTH", "INJ", "TIA",
     "ZRO", "ZETA", "DYM", "JUP", "MANTA", "ONDO", "LISTA", "ENA", "ZK", "XLM", "BONK", "WBTC",
-    "TRX", "FIL", "GMX", "TAO", "EDU"]
+    "TRX", "FIL", "GMX", "TAO", "EDU"
+]
 
 # == API Functions ==
 def get_long_account_data(asset):
@@ -19,35 +21,35 @@ def get_long_account_data(asset):
         res = requests.get(
             f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=5"
         ).json()
-
         if not res or not isinstance(res, list):
             return None
-
         long_acc = float(res[0].get("longAccount", 0))
         short_acc = 100.0 - long_acc
         return long_acc, short_acc
-
     except Exception as e:
-        print(f"[ERROR] Failed to fetch L/S ratio for {asset}: {e}")
+        print(f"[ERROR] Failed to fetch L/S account for {asset}: {e}")
         return None
 
 def get_long_short_ratio_data(asset):
     symbol = asset + "USDT"
     try:
-        res = requests.get(f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=1").json()
+        res = requests.get(
+            f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=1"
+        ).json()
         if not res or not isinstance(res, list):
             return None
-        ratio = float(res[0].get("longShortRatio", 0))
-        return ratio
+        return float(res[0].get("longShortRatio", 0))
     except Exception as e:
         print(f"[ERROR] get_long_short_ratio_data({asset}): {e}")
         return None
 
 def get_long_short_data(asset):
-    long_acc = get_long_account_data(asset)
-    long_short_ratio = get_long_short_ratio_data(asset)
-    short_acc = 100.0 - long_acc if long_acc is not None else None
-    return long_acc, short_acc, long_short_ratio
+    acc_data = get_long_account_data(asset)
+    if acc_data is None:
+        return None, None, None
+    long_acc, short_acc = acc_data
+    ratio = get_long_short_ratio_data(asset)
+    return long_acc, short_acc, ratio
 
 def get_open_interest(asset):
     try:
@@ -70,8 +72,8 @@ def get_volume_price(asset):
         short_ratio = 1 - long_ratio
         price = requests.get(f"https://api.binance.com/api/v3/ticker/price?symbol={asset}USDT").json()
         p = float(price["price"])
-        vol_long = round(float(oi_usd) * long_ratio, 6)
-        vol_short = round(float(oi_usd) * short_ratio, 6)
+        vol_long = round(oi_usd * long_ratio, 6)
+        vol_short = round(oi_usd * short_ratio, 6)
         avg_long = round(p * 1.01, 6)
         avg_short = round(p * 0.99, 6)
         return vol_long, vol_short, avg_long, avg_short
