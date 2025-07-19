@@ -143,12 +143,12 @@ def index():
             "long_account": f"{float(long_acc):.2f}%" if long_acc is not None else "-",
             "short_account": f"{float(short_acc):.2f}%" if short_acc is not None else "-",
             "long_short_ratio": f"{float(longshort_ratio):.2f}" if longshort_ratio is not None else "-",
-            "oi_usd": oi.get(asset, {}).get("oi_usd", "-"),
-            "oi_btc": oi.get(asset, {}).get("oi_btc", "-"),
-            "volume_long": volume.get(asset, {}).get("volume_long", "-"),
-            "volume_short": volume.get(asset, {}).get("volume_short", "-"),
-            "avg_price_long": avgprice.get(asset, {}).get("avg_price_long", "-"),
-            "avg_price_short": avgprice.get(asset, {}).get("avg_price_short", "-"),
+            "oi_usd": f"{float(oi.get(asset, {}).get('oi_usd')):,.2f}" if oi.get(asset, {}).get("oi_usd") not in ["-", None] else "-",
+            "oi_btc": f"{float(oi.get(asset, {}).get('oi_btc')):,.4f}" if oi.get(asset, {}).get("oi_btc") not in ["-", None] else "-",
+            "volume_long": f"{float(volume.get(asset, {}).get('volume_long')):,.2f}" if volume.get(asset, {}).get("volume_long") not in ["-", None] else "-",
+            "volume_short": f"{float(volume.get(asset, {}).get('volume_short')):,.2f}" if volume.get(asset, {}).get("volume_short") not in ["-", None] else "-",
+            "avg_price_long": f"{float(avgprice.get(asset, {}).get('avg_price_long')):,.4f}" if avgprice.get(asset, {}).get("avg_price_long") not in ["-", None] else "-",
+            "avg_price_short": f"{float(avgprice.get(asset, {}).get('avg_price_short')):,.4f}" if avgprice.get(asset, {}).get("avg_price_short") not in ["-", None] else "-",
         }
         data.append(row)
     return render_template("index.html", data=data)
