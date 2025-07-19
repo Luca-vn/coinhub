@@ -17,15 +17,19 @@ def get_long_account_data(asset):
     symbol = asset + "USDT"
     try:
         res = requests.get(
-        f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=5").json()
+            f"https://fapi.binance.com/futures/data/topLongShortAccountRatio?symbol={symbol}&period=1h&limit=5"
+        ).json()
+
         if not res or not isinstance(res, list):
-        return None
+            return None
+
         long_acc = float(res[0].get("longAccount", 0))
         short_acc = 100.0 - long_acc
         return long_acc, short_acc
+
     except Exception as e:
-    print(f"[ERROR] Failed to fetch L/S ratio for {symbol}: {e}")
-    return None
+        print(f"[ERROR] Failed to fetch L/S ratio for {asset}: {e}")
+        return None
 
 def get_long_short_ratio_data(asset):
     symbol = asset + "USDT"
