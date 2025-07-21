@@ -1,10 +1,10 @@
 from flask import Flask, render_template
 import pandas as pd
 import os
+import csv
 import requests
 from datetime import datetime
 from threading import Thread
-import csv
 
 app = Flask(__name__)
 
@@ -15,7 +15,6 @@ TRACKED_ASSETS = [
     "TRX", "FIL", "GMX", "TAO", "EDU"
 ]
 
-# == API Functions ==
 def get_long_account_data(asset):
     symbol = asset + "USDT"
     try:
@@ -81,7 +80,6 @@ def get_volume_price(asset):
     except:
         return None, None, None, None
 
-# == Logging ==
 def ensure_file(file_path, headers):
     if not os.path.exists(file_path):
         with open(file_path, "w") as f:
@@ -117,7 +115,6 @@ def run_scheduler():
             print("Logging error:", e)
         time.sleep(1800)
 
-# == Dashboard ==
 def read_last_row(csv_file, cols):
     if not os.path.exists(csv_file):
         return {}
@@ -133,22 +130,6 @@ def read_last_row(csv_file, cols):
         row["asset"]: {col: row.get(col, None) for col in cols}
         for _, row in df.iterrows()
     }
-
-def read_chart_1m(asset, type):
-    file = f"{asset.lower()}_1m.csv"
-    if not os.path.exists(file):
-        return [], []
-    df = pd.read_csv(file)
-    df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.tz_localize("UTC").dt.tz_convert("Asia/Bangkok")
-    labels = df["timestamp"].dt.strftime("%H:%M").tolist()
-    values = df[type].tolist()
-    return labels, values
-    
-    @app.route("/chart1m/<asset>")
-def chart_1m(asset):
-    labels, price = read_chart_1m(asset, "price")
-    _, volume = read_chart_1m(asset, "volume")
-    return render_template("chart_1m.html", asset=asset, labels=labels, price=price, volume=volume)
 
 @app.route("/")
 def index():
@@ -178,41 +159,17 @@ def index():
         data.append(row)
     return render_template("index.html", data=data)
 
-@app.route("/chart/<type>/<asset>")
-def chart(type, asset):
-    file_map = {
-        "long_account": ("longshort_history.csv", "long_account"),
-        "short_account": ("longshort_history.csv", "short_account"),
-        "long_short_ratio": ("longshort_history.csv", "long_short_ratio"),
-        "oi_usd": ("oi_history.csv", "oi_usd"),
-        "oi_btc": ("oi_history.csv", "oi_btc"),
-        "volume_long": ("volume_history.csv", "volume_long"),
-        "volume_short": ("volume_history.csv", "volume_short"),
-        "avg_price_long": ("avgprice_history.csv", "avg_price_long"),
-        "avg_price_short": ("avgprice_history.csv", "avg_price_short"),
-    }
-    if type not in file_map:
-        return f"Unknown chart type: {type}"
-    file, column = file_map[type]
-    df = pd.read_csv(file, header=0)
-    df = df[df["asset"] == asset]
-    if df.empty:
+@app.route("/chart1m/<asset>")
+def chart_1m(asset):
+    file = f"{asset.lower()}_1m.csv"
+    if not os.path.exists(file):
         return f"No data for {asset}"
+    df = pd.read_csv(file)
     df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.tz_localize("UTC").dt.tz_convert("Asia/Bangkok")
-    labels = df["timestamp"].dt.strftime("%m-%d %H:%M").tolist()
-    values = df[column].tolist()
-    return render_template("chart.html", asset=asset, labels=labels, values=values)
-
-@app.route("/force_log")
-def force_log():
-    log_data()
-    return "Logged!"
-
-@app.route("/test_lsr/<asset>")
-def test_lsr(asset):
-    long_acc = get_long_account_data(asset)
-    ratio = get_long_short_ratio_data(asset)
-    return f"{asset} → Long%: {long_acc}, Ratio: {ratio}"
+    labels = df["timestamp"].dt.strftime("%H:%M").tolist()
+    price = df["price"].tolist()
+    volume = df["volume"].tolist()
+    return render_template("chart_1m.html", asset=asset, labels=labels, price=price, volume=volume)
 
 if __name__ == "__main__":
     Thread(target=run_scheduler, daemon=True).start()
