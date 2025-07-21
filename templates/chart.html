@@ -1,59 +1,45 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>{{ asset }} - Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>{{ asset }} - 1m Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h2>📈 Chart for {{ asset }}</h2>
-    <canvas id="myChart" width="900" height="400"></canvas>
+  <h2>📊 1-Minute Chart for {{ asset }}</h2>
+  <canvas id="priceChart" width="900" height="300"></canvas>
+  <canvas id="volumeChart" width="900" height="200"></canvas>
 
-    <script>
-        const labels = {{ labels|safe }};
-        const values = {{ values|safe }};
+  <script>
+    const labels = {{ labels|safe }};
+    const price = {{ price|safe }};
+    const volume = {{ volume|safe }};
 
-        const ctx = document.getElementById('myChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '{{ asset }}',
-                    data: values,
-                    borderColor: 'blue',
-                    borderWidth: 2,
-                    pointRadius: 2,
-                    fill: false,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Time'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Value'
-                        },
-                        beginAtZero: false
-                    }
-                }
-            }
-        });
-    </script>
+    new Chart(document.getElementById('priceChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '{{ asset }} Price (1m)',
+          data: price,
+          borderColor: 'green',
+          fill: false,
+          tension: 0.3
+        }]
+      }
+    });
+
+    new Chart(document.getElementById('volumeChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '{{ asset }} Volume (1m)',
+          data: volume,
+          backgroundColor: 'rgba(0, 0, 255, 0.4)'
+        }]
+      }
+    });
+  </script>
 </body>
 </html>
