@@ -1,0 +1,46 @@
+<!-- templates/chart_1m.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ asset }} - 1m Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>📊 1-Minute Chart for {{ asset }}</h2>
+  <canvas id="priceChart" width="900" height="300"></canvas>
+  <canvas id="volumeChart" width="900" height="200"></canvas>
+
+  <script>
+    const labels = {{ labels|safe }};
+    const price = {{ price|safe }};
+    const volume = {{ volume|safe }};
+
+    new Chart(document.getElementById('priceChart').getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '{{ asset }} Price (1m)',
+          data: price,
+          borderColor: 'green',
+          fill: false,
+          tension: 0.3
+        }]
+      }
+    });
+
+    new Chart(document.getElementById('volumeChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '{{ asset }} Volume (1m)',
+          data: volume,
+          backgroundColor: 'rgba(0, 0, 255, 0.4)'
+        }]
+      }
+    });
+  </script>
+</body>
+</html>
