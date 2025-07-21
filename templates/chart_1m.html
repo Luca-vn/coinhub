@@ -1,21 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>{{ asset }} - 1m Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      background: #fff;
+      text-align: center;
+    }
     canvas {
       max-width: 100%;
       height: auto;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    .chart-container {
+      width: 95vw;
+      max-width: 1000px;
+      margin: auto;
     }
   </style>
 </head>
 <body>
   <h2>📊 1-Minute Chart for {{ asset }}</h2>
-  <div style="width: 95vw; max-width: 1000px; margin: auto;">
+  <div class="chart-container">
     <canvas id="priceChart" height="300"></canvas>
-    <canvas id="volumeChart" height="200" style="margin-top: 20px;"></canvas>
+    <canvas id="volumeChart" height="200" style="margin-top: 30px;"></canvas>
   </div>
 
   <script>
@@ -23,19 +37,18 @@
     const price = {{ price | safe }};
     const volume = {{ volume | safe }};
 
-    // Biểu đồ giá
     new Chart(document.getElementById("priceChart"), {
       type: "line",
       data: {
         labels: labels,
         datasets: [{
-          label: "BTC Price (1m)",
+          label: "Price (USDT)",
           data: price,
           borderColor: "green",
-          borderWidth: 2,
-          fill: false,
-          tension: 0.2,
-          pointRadius: 2
+          backgroundColor: "rgba(0, 255, 0, 0.1)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 1
         }]
       },
       options: {
@@ -45,10 +58,14 @@
           y: {
             title: {
               display: true,
-              text: "Price (USDT)"
+              text: "USDT"
             }
           },
           x: {
+            title: {
+              display: true,
+              text: "Time"
+            },
             ticks: {
               maxRotation: 45,
               minRotation: 45
@@ -61,21 +78,21 @@
             position: "top"
           },
           tooltip: {
-            enabled: true
+            mode: 'index',
+            intersect: false
           }
         }
       }
     });
 
-    // Biểu đồ volume
     new Chart(document.getElementById("volumeChart"), {
       type: "bar",
       data: {
         labels: labels,
         datasets: [{
-          label: "BTC Volume (1m)",
+          label: "Volume",
           data: volume,
-          backgroundColor: "rgba(100, 100, 255, 0.6)",
+          backgroundColor: "rgba(100, 100, 255, 0.5)",
           borderColor: "blue",
           borderWidth: 1
         }]
@@ -103,7 +120,8 @@
             position: "top"
           },
           tooltip: {
-            enabled: true
+            mode: 'index',
+            intersect: false
           }
         }
       }
