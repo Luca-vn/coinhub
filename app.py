@@ -4,6 +4,7 @@ import os
 import requests
 from datetime import datetime
 from threading import Thread
+import csv
 
 app = Flask(__name__)
 
@@ -132,6 +133,22 @@ def read_last_row(csv_file, cols):
         row["asset"]: {col: row.get(col, None) for col in cols}
         for _, row in df.iterrows()
     }
+
+def read_chart_1m(asset, type):
+    file = f"{asset.lower()}_1m.csv"
+    if not os.path.exists(file):
+        return [], []
+    df = pd.read_csv(file)
+    df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.tz_localize("UTC").dt.tz_convert("Asia/Bangkok")
+    labels = df["timestamp"].dt.strftime("%H:%M").tolist()
+    values = df[type].tolist()
+    return labels, values
+    
+    @app.route("/chart1m/<asset>")
+def chart_1m(asset):
+    labels, price = read_chart_1m(asset, "price")
+    _, volume = read_chart_1m(asset, "volume")
+    return render_template("chart_1m.html", asset=asset, labels=labels, price=price, volume=volume)
 
 @app.route("/")
 def index():
