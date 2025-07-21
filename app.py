@@ -163,8 +163,8 @@ def chart_1m(asset):
             return f"No data for {asset}"
 
         df = pd.read_csv(file_path)
-        if df.empty:
-            return f"No valid data for {asset}"
+        if df.empty or len(df) < 3:  # ✅ Kiểm tra có ít nhất 3 dòng mới render
+            return f"⏳ Đang thu thập dữ liệu... Hãy thử lại sau 1–2 phút"
 
         df["timestamp"] = pd.to_datetime(df["timestamp"])
         df["timestamp"] = df["timestamp"].dt.tz_localize("UTC").dt.tz_convert("Asia/Bangkok")
@@ -173,6 +173,9 @@ def chart_1m(asset):
         labels = df["timestamp"].dt.strftime("%H:%M:%S").tolist()
         prices = df["price"].tolist()
         volumes = df["volume"].tolist()
+
+        if len(labels) < 3 or len(prices) < 3 or len(volumes) < 3:
+            return "⚠️ Dữ liệu chưa đầy đủ. Đợi vài phút rồi F5 lại nhé."
 
         return render_template(
             "chart_1m.html",
@@ -183,7 +186,7 @@ def chart_1m(asset):
         )
     except Exception as e:
         return f"Error loading chart for {asset}: {e}"
-
+        
 # ========== RUN ==========
 if __name__ == "__main__":
     Thread(target=log_data_1h, daemon=True).start()
