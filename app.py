@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 import pandas as pd
 import os
+import json
 import csv
 import requests
 from datetime import datetime
@@ -178,7 +179,13 @@ def chart_1m(asset):
         prices = df["price"].tolist()
         volumes = df["volume"].tolist()
 
-        return render_template("chart_1m.html", asset=asset.upper(), labels=labels, price=prices, volume=volumes)
+        return render_template(
+    "chart_1m.html",
+    asset=asset.upper(),
+    labels=json.dumps(labels),
+    price=json.dumps(prices),
+    volume=json.dumps(volumes)
+)
     except Exception as e:
         return f"Error loading chart for {asset}: {e}"
         
