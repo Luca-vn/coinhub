@@ -1,131 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>{{ asset }} - 1m Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 10px;
-      background: #fff;
+      font-family: Arial;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    h2 {
       text-align: center;
     }
     canvas {
-      max-width: 100%;
-      height: auto;
-    }
-    h2 {
-      margin-bottom: 20px;
-    }
-    .chart-container {
-      width: 95vw;
-      max-width: 1000px;
-      margin: auto;
+      margin-bottom: 40px;
     }
   </style>
 </head>
 <body>
   <h2>📊 1-Minute Chart for {{ asset }}</h2>
-  <div class="chart-container">
-    <canvas id="priceChart" height="300"></canvas>
-    <canvas id="volumeChart" height="200" style="margin-top: 30px;"></canvas>
-  </div>
 
-  <script>
-    const labels = {{ labels | safe }};
-    const price = {{ price | safe }};
-    const volume = {{ volume | safe }};
+  {% if labels|length < 3 %}
+    <p>⏳ Đang thu thập dữ liệu... Hãy thử lại sau 1–2 phút</p>
+  {% else %}
+    <canvas id="priceChart" width="900" height="300"></canvas>
+    <canvas id="volumeChart" width="900" height="200"></canvas>
 
-    new Chart(document.getElementById("priceChart"), {
-      type: "line",
-      data: {
-        labels: labels,
-        datasets: [{
-          label: "Price (USDT)",
-          data: price,
-          borderColor: "green",
-          backgroundColor: "rgba(0, 255, 0, 0.1)",
-          fill: true,
-          tension: 0.3,
-          pointRadius: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            title: {
-              display: true,
-              text: "USDT"
-            }
-          },
-          x: {
-            title: {
-              display: true,
-              text: "Time"
+    <script>
+      const labels = {{ labels|safe }};
+      const price = {{ price|safe }};
+      const volume = {{ volume|safe }};
+
+      // Price Chart
+      new Chart(document.getElementById('priceChart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Price (USDT)',
+            data: price,
+            borderColor: 'green',
+            backgroundColor: 'rgba(0,255,0,0.1)',
+            tension: 0.3,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          scales: {
+            x: {
+              ticks: {
+                maxRotation: 0,
+                minRotation: 0
+              }
             },
-            ticks: {
-              maxRotation: 45,
-              minRotation: 45
+            y: {
+              suggestedMin: Math.min(...price) * 0.998,
+              suggestedMax: Math.max(...price) * 1.002
             }
           }
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: "top"
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false
-          }
         }
-      }
-    });
+      });
 
-    new Chart(document.getElementById("volumeChart"), {
-      type: "bar",
-      data: {
-        labels: labels,
-        datasets: [{
-          label: "Volume",
-          data: volume,
-          backgroundColor: "rgba(100, 100, 255, 0.5)",
-          borderColor: "blue",
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            title: {
-              display: true,
-              text: "Volume"
-            }
-          },
-          x: {
-            ticks: {
-              maxRotation: 45,
-              minRotation: 45
-            }
-          }
+      // Volume Chart
+      new Chart(document.getElementById('volumeChart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Volume',
+            data: volume,
+            backgroundColor: 'rgba(0,0,255,0.3)'
+          }]
         },
-        plugins: {
-          legend: {
-            display: true,
-            position: "top"
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false
+        options: {
+          animation: false,
+          responsive: true,
+          scales: {
+            x: {
+              ticks: {
+                maxRotation: 0,
+                minRotation: 0
+              }
+            },
+            y: {
+              beginAtZero: true
+            }
           }
         }
-      }
-    });
-  </script>
+      });
+    </script>
+  {% endif %}
 </body>
 </html>
