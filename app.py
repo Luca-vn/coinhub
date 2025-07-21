@@ -11,7 +11,7 @@ from threading import Thread
 app = Flask(__name__)
 
 # ========== CONFIG ==========
-TRACKED_ASSETS = ["BTC", "SOL", "LINK"]  # Có thể mở rộng thêm coin nếu muốn
+TRACKED_ASSETS = ["USDC", "BTC", "ETH", "SOL", "SUI", "XRP", "BNB", "DOGE", "LTC", "ADA", "AVAX", "TRUMP", "LINK", "WLD", "OP", "ARB", "TON", "BLUR", "MAGIC", "PYTH", "INJ", "TIA", "ZRO", "ZETA", "DYM", "JUP", "MANTA", "ONDO", "LISTA", "ENA", "ZK", "XLM", "TRX", "FIL", "GMX", "TAO", "EDU"]  # Có thể mở rộng thêm coin nếu muốn
 
 # ========== 1. LOG 1H: OI, Long/Short, Volume, Avg Price ==========
 def get_long_account_data(asset):
