@@ -161,16 +161,27 @@ def index():
 
 @app.route("/chart1m/<asset>")
 def chart_1m(asset):
-    file = f"{asset.lower()}_1m.csv"
-    if not os.path.exists(file):
-        return f"No data for {asset}"
-    df = pd.read_csv(file)
-    df["timestamp"] = pd.to_datetime(df["timestamp"]).dt.tz_localize("UTC").dt.tz_convert("Asia/Bangkok")
-    labels = df["timestamp"].dt.strftime("%H:%M").tolist()
-    price = df["price"].tolist()
-    volume = df["volume"].tolist()
-    return render_template("chart_1m.html", asset=asset, labels=labels, price=price, volume=volume)
+    try:
+        file_path = f"data/{asset.lower()}_1m.csv"
+        if not os.path.exists(file_path):
+            return f"No data for {asset}"
 
+        df = pd.read_csv(file_path)
+        if df.empty or "timestamp" not in df or "price" not in df or "volume" not in df:
+            return f"No valid data for {asset}"
+
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+        df["timestamp"] = df["timestamp"].dt.tz_localize("UTC").dt.tz_convert("Asia/Bangkok")
+        df = df.tail(60)  # chỉ lấy 60 phút gần nhất (1h)
+
+        labels = df["timestamp"].dt.strftime("%H:%M:%S").tolist()
+        prices = df["price"].tolist()
+        volumes = df["volume"].tolist()
+
+        return render_template("chart_1m.html", asset=asset.upper(), labels=labels, price=prices, volume=volumes)
+    except Exception as e:
+        return f"Error loading chart for {asset}: {e}"
+        
 if __name__ == "__main__":
     Thread(target=run_scheduler, daemon=True).start()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
