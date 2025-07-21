@@ -3,12 +3,42 @@
 <head>
     <title>📉 Lucabrasi Open Interest Dashboard</title>
     <style>
-        body { font-family: Arial; font-size: 15px; padding: 20px; background: #f4f4f4; }
-        table { border-collapse: collapse; width: 100%; background: white; }
-        th, td { border: 1px solid #ccc; padding: 5px 8px; text-align: center; }
-        th { background-color: #000; color: #fff; }
-        tr:hover { background-color: #f2f2f2; }
-        .header { font-size: 20px; margin-bottom: 10px; font-weight: bold; color: #8B0000; }
+        body {
+            font-family: Arial;
+            font-size: 15px;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 5px 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #000;
+            color: #fff;
+        }
+        tr:hover {
+            background-color: #f2f2f2;
+        }
+        .header {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #8B0000;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -26,7 +56,7 @@
                 <th>Volume Short</th>
                 <th>Avg Price Long</th>
                 <th>Avg Price Short</th>
-                <th>Chart</th>
+                <th>Chart 1m</th>
             </tr>
         </thead>
         <tbody>
@@ -43,13 +73,11 @@
                 <td>{{ row.avg_price_long }}</td>
                 <td>{{ row.avg_price_short }}</td>
                 <td>
-                    <a href="/chart/longshort/{{ row.asset }}">Long%</a> |
-                    <a href="/chart/ratio/{{ row.asset }}">L/S</a> |
-                    <a href="/chart/oi/{{ row.asset }}">OI$</a> |
-                    <a href="/chart/oibtc/{{ row.asset }}">OI฿</a> |
-                    <a href="/chart/volume/{{ row.asset }}">Vol</a> |
-                    <a href="/chart/price/{{ row.asset }}">P↑</a> |
-                    <a href="/chart/price/{{ row.asset }}">P↓</a>
+                    {% if row.asset in ['BTC', 'SOL', 'LINK'] %}
+                        <a href="/chart1m/{{ row.asset }}">Chart 1m</a>
+                    {% else %}
+                        -
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
