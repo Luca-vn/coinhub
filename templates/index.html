@@ -63,15 +63,15 @@
             {% for row in data %}
             <tr>
                 <td>{{ row.asset }}</td>
-                <td>{{ '{:.2f}%'.format(row.long_account) }}</td>
-                <td>{{ '{:.2f}%'.format(row.short_account) }}</td>
-                <td>{{ '{:.2f}'.format(row.long_short_ratio) }}</td>
-                <td>{{ '{:,.2f}'.format(row.oi_usd) }}</td>
-                <td>{{ '{:.4f}'.format(row.oi_btc) }}</td>
-                <td>{{ '{:,.2f}'.format(row.volume_long) }}</td>
-                <td>{{ '{:,.2f}'.format(row.volume_short) }}</td>
-                <td>{{ '{:,.2f}'.format(row.avg_price_long) }}</td>
-                <td>{{ '{:,.2f}'.format(row.avg_price_short) }}</td>
+                   <td>{{ '{:.2f}%'.format(float(row.long_account)) }}</td>
+                    <td>{{ '{:.2f}%'.format(float(row.short_account)) }}</td>
+                    <td>{{ '{:.2f}'.format(float(row.long_short_ratio)) }}</td>
+                    <td>{{ '{:,.2f}'.format(float(row.oi_usd)) }}</td>
+                    <td>{{ '{:.4f}'.format(float(row.oi_btc)) }}</td>
+                    <td>{{ '{:,.2f}'.format(float(row.volume_long)) }}</td>
+                    <td>{{ '{:,.2f}'.format(float(row.volume_short)) }}</td>
+                    <td>{{ '{:,.2f}'.format(float(row.avg_price_long)) }}</td>
+                    <td>{{ '{:,.2f}'.format(float(row.avg_price_short)) }}</td>
                 <td>
                     {% if row.asset in ['BTC', 'SOL', 'LINK'] %}
                         <a href="/chart1m/{{ row.asset }}">Chart 1m</a>
